@@ -7,4 +7,7 @@ void main() {
   value.debang('(John Doe): Short message');
   value.debang(
       '(John Doe): Long message with author which will be without error');
+  value.debang(
+      '(Иван Петров): Достаточно длинное сообщение с автором, ошибки нет');
+  value!.toString(); // debang_avoid_bang (opt-in rule)
 }

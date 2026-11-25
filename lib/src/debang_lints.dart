@@ -15,6 +15,7 @@ class DebangLintPlugin extends Plugin {
   @override
   void register(PluginRegistry registry) {
     registry
+      // Warning rules are enabled by default.
       ..registerWarningRule(
         DebangAssertionTooShortRule(
           minLength: 32,
@@ -23,6 +24,11 @@ class DebangLintPlugin extends Plugin {
       )
       ..registerWarningRule(
         DebangMissingAuthorRule(
+          severity: DiagnosticSeverity.ERROR,
+        ),
+      )
+      ..registerWarningRule(
+        DebangAvoidBangRule(
           severity: DiagnosticSeverity.ERROR,
         ),
       );
