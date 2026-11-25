@@ -1,5 +1,9 @@
-## 1.2.0
+## 2.0.0
 
+- **Breaking:** the new rule `debang_avoid_bang` is enabled by default and
+  reported as an error. Disable it with `diagnostics: debang_avoid_bang: false`
+  or suppress a single line with `// ignore: debang_lints/debang_avoid_bang`.
+- **Breaking:** requires Dart 3.10 or newer and `analyzer` 14.
 - Docs: describe how generated code is handled.
 - Docs: describe how to disable rules and suppress diagnostics.
 - Update to `analyzer` 14 and `analysis_server_plugin` 0.3.20+ (requires Dart

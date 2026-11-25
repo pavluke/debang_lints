@@ -49,7 +49,7 @@ meaningful debug output.
 
 ```yaml
 plugins:
-  debang_lints: ^1.2.0
+  debang_lints: ^2.0.0
 ```
 
 > **Note:** All rules are enabled by default and reported as errors.
@@ -71,7 +71,7 @@ All rules are enabled by default and reported as errors.
 ```yaml
 plugins:
   debang_lints:
-    version: ^1.2.0
+    version: ^2.0.0
     diagnostics:
       debang_message_too_short: false
       debang_missing_author: false

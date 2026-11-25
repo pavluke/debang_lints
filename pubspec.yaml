@@ -2,7 +2,7 @@ name: debang_lints
 description: A Dart analyzer plugin for the debang package that enforces
   descriptive assertion messages and requires author attribution in debang()
   calls.
-version: 1.2.0
+version: 2.0.0
 repository: https://github.com/pavluke/debang_lints
 homepage: https://github.com/pavluke/debang_lints
 issue_tracker: https://github.com/pavluke/debang_lints/issues

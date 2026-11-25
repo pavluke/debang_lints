@@ -51,7 +51,7 @@
 
 ```yaml
 plugins:
-  debang_lints: ^1.2.0
+  debang_lints: ^2.0.0
 ```
 
 > **Важно:** Все правила включены по умолчанию и считаются ошибками.
@@ -73,7 +73,7 @@ plugins:
 ```yaml
 plugins:
   debang_lints:
-    version: ^1.2.0
+    version: ^2.0.0
     diagnostics:
       debang_message_too_short: false
       debang_missing_author: false
