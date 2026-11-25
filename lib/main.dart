@@ -9,7 +9,7 @@
 ///
 /// ```
 /// plugins:
-///   debang_lints: ^1.1.0
+///   debang_lints: ^1.2.0
 /// ```
 ///
 /// Then restart Analysis Server in your IDE.

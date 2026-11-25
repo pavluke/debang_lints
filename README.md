@@ -10,7 +10,7 @@ A custom Dart analyzer plugin that enforces quality standards for `debang()` cal
 
 [`debang`](https://github.com/pavluke/debang) is a debugging package that
 provides the `.debang()` extension for nullable types with assertion messages
-and a `Debang()` constructor for providing default values. This linter ensures
+and the `Debang` exception that is thrown when the value is null. This linter ensures
 all assertion messages are descriptive and meaningful.
 
 <p align="center">For better understanding how it works check <a href="https://pavluke.github.io/packages/?pkg=debang_lints">demo</a> page</p>
@@ -36,8 +36,9 @@ meaningful debug output.
 
 | Rule | Description | Default |
 |---|---|---|
-| `debang_message_too_short` | Message must meet a minimum character length | disabled |
-| `debang_missing_author` | Message must start with an author name `(username):` | disabled |
+| `debang_message_too_short` | Message must meet a minimum character length | enabled |
+| `debang_missing_author` | Message must start with an author name `(Name):` | enabled |
+| `debang_avoid_bang` | Reports the null assertion operator `!` | enabled |
 
 ## Installation
 
@@ -45,11 +46,10 @@ meaningful debug output.
 
 ```yaml
 plugins:
-  debang_lints: ^1.1.0
+  debang_lints: ^1.2.0
 ```
 
-> **Note:** Lint rules are disabled by default in the new Dart analyzer plugin
-> system. You must explicitly enable each rule under `diagnostics:`.
+> **Note:** All rules are enabled by default and reported as errors.
 
 ### 2. Restart Analysis Server
 
@@ -58,6 +58,53 @@ Run `dart pub get`, then:
 **VS Code:** Command Palette → `Dart: Restart Analysis Server`
 
 **IntelliJ/Android Studio:** File → Invalidate Caches / Restart
+
+## Configuration
+
+All rules are enabled by default and reported as errors.
+
+### Disable a rule in the whole project
+
+```yaml
+plugins:
+  debang_lints:
+    version: ^1.2.0
+    diagnostics:
+      debang_message_too_short: false
+      debang_missing_author: false
+      debang_avoid_bang: false
+```
+
+Restart the Analysis Server after changing the `plugins:` section.
+
+### Suppress a rule for a line or a file
+
+```dart
+// ignore: debang_lints/debang_avoid_bang
+final length = name!.length;
+
+// ignore_for_file: debang_lints/debang_missing_author
+```
+
+### Generated code
+
+Generated files (`*.g.dart`, `*.freezed.dart`, ...) are analyzed like any other
+code. If the header of a generated file contains `// ignore_for_file: type=lint`
+the rules skip it too. A header comment such as `GENERATED CODE - DO NOT MODIFY
+BY HAND` alone is not enough, so exclude generated files that do not have that
+line (they are then not analyzed at all):
+
+```yaml
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+```
+
+### Severity
+
+The severity of a rule cannot be changed: Dart's `analyzer: errors:` setting
+does not recognize diagnostics of analyzer plugins.
 
 ## Usage Examples
 
@@ -92,6 +139,7 @@ void main() {
 ### `debang_missing_author`
 
 Messages must begin with `(username):`, similar to the `TODO(username):` convention.
+The name may contain spaces and letters of any alphabet, e.g. `(John Doe):`.
 
 #### ❌ Bad (triggers diagnostic)
 
@@ -113,6 +161,28 @@ void main() {
   int? value;
   value.debang("(John Doe): Won't be null after auth flow completes");  // OK
 }
+```
+
+### `debang_avoid_bang`
+
+Reports the null assertion operator `!`, so a bare `!` cannot slip into the
+code unnoticed (including code suggested by AI assistants). Replace it with
+`.debang()` and an explanation. Reported as an error. Generated files (for
+example `*.g.dart`) can be excluded with `analyzer: exclude:` in your
+`analysis_options.yaml`.
+
+#### ❌ Bad (triggers diagnostic)
+
+```dart
+final length = name!.length;  // Error: avoid the null assertion operator
+```
+
+#### ✅ Good (passes validation)
+
+```dart
+final length = name
+    .debang('(John Doe): name is set by the login flow before this screen')
+    .length;  // OK
 ```
 
 ## Changelog
