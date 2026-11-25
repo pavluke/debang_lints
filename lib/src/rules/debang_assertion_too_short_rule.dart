@@ -5,6 +5,8 @@ import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/error/error.dart';
 
+import '../author_pattern.dart';
+
 /// Analysis rule that checks minimum message length for debang assertions.
 class DebangAssertionTooShortRule extends AnalysisRule {
   /// Creates a new instance with the specified [minLength] and [severity].
@@ -12,9 +14,9 @@ class DebangAssertionTooShortRule extends AnalysisRule {
     required this.minLength,
     required this.severity,
   }) : super(
-          name: ruleName,
-          description: _description,
-        );
+         name: ruleName,
+         description: _description,
+       );
 
   /// Minimum required message length in characters.
   final int minLength;
@@ -30,18 +32,23 @@ class DebangAssertionTooShortRule extends AnalysisRule {
 
   @override
   LintCode get diagnosticCode => LintCode(
-        ruleName,
-        'Debang assertion too short.',
-        uniqueName: 'debang.$ruleName',
-        correctionMessage: 'Use a more descriptive message.',
-        severity: severity,
-      );
+    ruleName,
+    'Debang assertion too short.',
+    uniqueName: 'debang.$ruleName',
+    correctionMessage: 'Use a more descriptive message.',
+    severity: severity,
+  );
 
   @override
   void registerNodeProcessors(
-      RuleVisitorRegistry registry, RuleContext context) {
-    final visitor =
-        _Visitor(rule: this, context: context, minLength: minLength);
+    RuleVisitorRegistry registry,
+    RuleContext context,
+  ) {
+    final visitor = _Visitor(
+      rule: this,
+      context: context,
+      minLength: minLength,
+    );
 
     registry.addMethodInvocation(this, visitor);
     registry.addInstanceCreationExpression(this, visitor);
@@ -67,7 +74,8 @@ class _Visitor extends SimpleAstVisitor<void> {
     final args = node.argumentList.arguments;
     if (args.isEmpty) return;
 
-    _checkMessage(args.first);
+    final first = args.first;
+    if (first is Expression) _checkMessage(first);
   }
 
   @override
@@ -80,7 +88,8 @@ class _Visitor extends SimpleAstVisitor<void> {
     final args = node.argumentList.arguments;
     if (args.isEmpty) return;
 
-    _checkMessage(args.first);
+    final first = args.first;
+    if (first is Expression) _checkMessage(first);
   }
 
   /// Validates message length and reports error if too short.
@@ -90,8 +99,7 @@ class _Visitor extends SimpleAstVisitor<void> {
     final message = expr.stringValue;
     if (message == null) return;
 
-    final authorPrefix = RegExp(r'^\([a-zA-Z0-9._-]+\):\s*');
-    final content = message.replaceFirst(authorPrefix, '').trim();
+    final content = message.replaceFirst(authorPrefixPattern, '').trim();
 
     if (content.length >= minLength) return;
 

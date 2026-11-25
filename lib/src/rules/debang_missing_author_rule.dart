@@ -5,6 +5,8 @@ import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/error/error.dart';
 
+import '../author_pattern.dart';
+
 /// Analysis rule that checks debang assertions have an author name,
 /// similar to the `TODO(username)` convention.
 ///
@@ -15,9 +17,9 @@ class DebangMissingAuthorRule extends AnalysisRule {
   DebangMissingAuthorRule({
     required this.severity,
   }) : super(
-          name: ruleName,
-          description: _description,
-        );
+         name: ruleName,
+         description: _description,
+       );
 
   /// Diagnostic severity level (ERROR, WARNING, INFO, or HINT).
   final DiagnosticSeverity severity;
@@ -28,23 +30,21 @@ class DebangMissingAuthorRule extends AnalysisRule {
   static const String _description =
       'Checks that debang messages include an author name, e.g. (username): assertion';
 
-  /// Regex matching the `TODO(username)` style prefix: (name):
-  /// Name may contain letters, digits, dots, underscores, hyphens.
-  static final RegExp _authorPattern = RegExp(r'^\([a-zA-Z0-9._-]+\):');
-
   @override
   LintCode get diagnosticCode => LintCode(
-        ruleName,
-        'Debang assertion is missing an author name.',
-        uniqueName: 'debang.$ruleName',
-        correctionMessage:
-            "Add your name in parentheses before the message, e.g. '(username): assertion'.",
-        severity: severity,
-      );
+    ruleName,
+    'Debang assertion is missing an author name.',
+    uniqueName: 'debang.$ruleName',
+    correctionMessage:
+        "Add your name in parentheses before the message, e.g. '(username): assertion'.",
+    severity: severity,
+  );
 
   @override
   void registerNodeProcessors(
-      RuleVisitorRegistry registry, RuleContext context) {
+    RuleVisitorRegistry registry,
+    RuleContext context,
+  ) {
     final visitor = _Visitor(rule: this, context: context);
     registry.addMethodInvocation(this, visitor);
     registry.addInstanceCreationExpression(this, visitor);
@@ -68,7 +68,8 @@ class _Visitor extends SimpleAstVisitor<void> {
     final args = node.argumentList.arguments;
     if (args.isEmpty) return;
 
-    _checkAuthor(args.first);
+    final first = args.first;
+    if (first is Expression) _checkAuthor(first);
   }
 
   @override
@@ -80,7 +81,8 @@ class _Visitor extends SimpleAstVisitor<void> {
     final args = node.argumentList.arguments;
     if (args.isEmpty) return;
 
-    _checkAuthor(args.first);
+    final first = args.first;
+    if (first is Expression) _checkAuthor(first);
   }
 
   /// Reports a diagnostic if the message does not start with (username):.
@@ -95,7 +97,7 @@ class _Visitor extends SimpleAstVisitor<void> {
       return;
     }
 
-    if (DebangMissingAuthorRule._authorPattern.hasMatch(message)) return;
+    if (authorPrefixPattern.hasMatch(message)) return;
 
     final unit = context.currentUnit;
     if (unit == null) return;
