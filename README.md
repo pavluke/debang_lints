@@ -42,6 +42,9 @@ meaningful debug output.
 
 ## Installation
 
+> **Requirements:** Analyzer plugins require Dart 3.10 or newer. This plugin
+> is tested with Dart 3.14.
+
 ### 1. Add to `analysis_options.yaml`
 
 ```yaml
