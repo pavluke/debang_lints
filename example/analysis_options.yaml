@@ -1,5 +1,7 @@
 plugins:
   debang_lints:
     path: ../
-    diagnostics:
-      debang_avoid_bang: false
+    # diagnostics:
+    # debang_message_too_short: false
+    # debang_missing_author: false
+    # debang_avoid_bang: false
